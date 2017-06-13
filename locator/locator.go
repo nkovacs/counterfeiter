@@ -9,7 +9,6 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/maxbrunsfeld/counterfeiter/model"
@@ -35,30 +34,32 @@ func GetInterfaceFromFilePath(interfaceName, filePath string) (*model.InterfaceT
 }
 
 func GetInterfaceFromImportPath(interfaceName, importPath string, vendorPaths ...string) (*model.InterfaceToFake, error) {
+	iface, _, err := GetInterfaceAndDirFromImportPath(interfaceName, importPath, vendorPaths...)
+	return iface, err
+}
+
+func GetInterfaceAndDirFromImportPath(interfaceName, importPath string, vendorPaths ...string) (*model.InterfaceToFake, string, error) {
 	dirPath, err := dirPathForImportPath(importPath, vendorPaths)
 	if err != nil {
-		return nil, err
+		return nil, dirPath, err
 	}
 
 	packages, err := packagesForDirPath(dirPath)
 	if err != nil {
-		return nil, err
+		return nil, dirPath, err
 	}
 
 	for _, pkg := range packages {
 		iface, file, isFunction, err := findInterface(pkg, interfaceName)
 		if err != nil {
-			return nil, err
+			return nil, dirPath, err
 		}
 
 		if iface != nil {
 			typesFound := getTypeNames(pkg)
 			importSpecs := getImports(file)
 
-			pkgImport := pkg.Name
-			if strings.HasSuffix(importPath, pkg.Name) {
-				pkgImport = "xyz123"
-			}
+			pkgImport := addSourceImport(importSpecs, pkg.Name, importPath)
 
 			var methods []model.Method
 			var err error
@@ -74,15 +75,7 @@ func GetInterfaceFromImportPath(interfaceName, importPath string, vendorPaths ..
 			}
 
 			if err != nil {
-				return nil, err
-			}
-
-			importSpecs[pkgImport] = &ast.ImportSpec{
-				Name: &ast.Ident{Name: pkgImport},
-				Path: &ast.BasicLit{
-					Kind:  token.STRING,
-					Value: strconv.Quote(importPath),
-				},
+				return nil, dirPath, err
 			}
 
 			return &model.InterfaceToFake{
@@ -91,11 +84,11 @@ func GetInterfaceFromImportPath(interfaceName, importPath string, vendorPaths ..
 				ImportPath:             importPath,
 				PackageName:            pkg.Name,
 				RepresentedByInterface: !isFunction,
-			}, nil
+			}, dirPath, nil
 		}
 	}
 
-	return nil, fmt.Errorf("Could not find interface '%s'", interfaceName)
+	return nil, dirPath, fmt.Errorf("Could not find interface '%s'", interfaceName)
 }
 
 func getDir(path string) (string, error) {
