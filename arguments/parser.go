@@ -69,7 +69,13 @@ func (argParser *argumentParser) parseInterfaceArgs(args ...string) ParsedArgume
 		outputPathFlagValue,
 	)
 
-	packageName := restrictToValidPackageName(filepath.Base(filepath.Dir(outputPath)))
+	packageName := *packageNameFlag
+	explicitPackageName := true
+
+	if packageName == "" {
+		packageName = restrictToValidPackageName(filepath.Base(filepath.Dir(outputPath)))
+		explicitPackageName = false
+	}
 
 	return ParsedArguments{
 		GenerateInterfaceAndShimFromPackageDirectory: false,
@@ -80,6 +86,8 @@ func (argParser *argumentParser) parseInterfaceArgs(args ...string) ParsedArgume
 		InterfaceName:          interfaceName,
 		DestinationPackageName: packageName,
 		FakeImplName:           fakeImplName,
+
+		ExplicitPackageName: explicitPackageName,
 
 		PrintToStdOut: any(args, "-"),
 	}
@@ -125,6 +133,7 @@ type ParsedArguments struct {
 	OutputPath       string // path to write the fake file to
 
 	DestinationPackageName string // often the base-dir for OutputPath but must be a valid package name
+	ExplicitPackageName    bool   // package name was specified by user
 
 	InterfaceName string // the interface to counterfeit
 	FakeImplName  string // the name of the struct implementing the given interface

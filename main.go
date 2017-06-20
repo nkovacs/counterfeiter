@@ -36,19 +36,20 @@ func main() {
 
 	outputPath := parsedArgs.OutputPath
 	destinationPackage := parsedArgs.DestinationPackageName
+	explicitPackageName := parsedArgs.ExplicitPackageName
 
 	if parsedArgs.GenerateInterfaceAndShimFromPackageDirectory {
 		generateInterfaceAndShim(parsedArgs.SourcePackageDir, outputPath, destinationPackage, parsedArgs.PrintToStdOut)
 	} else {
-		generateFake(parsedArgs.InterfaceName, parsedArgs.SourcePackageDir, parsedArgs.ImportPath, outputPath, destinationPackage, parsedArgs.FakeImplName, parsedArgs.PrintToStdOut)
+		generateFake(parsedArgs.InterfaceName, parsedArgs.SourcePackageDir, parsedArgs.ImportPath, outputPath, destinationPackage, parsedArgs.FakeImplName, explicitPackageName, parsedArgs.PrintToStdOut)
 	}
 }
 
-func generateFake(interfaceName, sourcePackageDir, importPath, outputPath, destinationPackage, fakeName string, printToStdOut bool) {
+func generateFake(interfaceName, sourcePackageDir, importPath, outputPath, destinationPackage, fakeName string, explicitPackageName, printToStdOut bool) {
 	var err error
 	var iface *model.InterfaceToFake
 	if sourcePackageDir == "" {
-		iface, err = locator.GetInterfaceFromImportPath(interfaceName, importPath)
+		iface, sourcePackageDir, err = locator.GetInterfaceAndDirFromImportPath(interfaceName, importPath)
 	} else {
 		iface, err = locator.GetInterfaceFromFilePath(interfaceName, sourcePackageDir)
 	}
@@ -56,11 +57,17 @@ func generateFake(interfaceName, sourcePackageDir, importPath, outputPath, desti
 		fail("%v", err)
 	}
 
+	samePackage := filepath.Dir(outputPath) == sourcePackageDir
+	if samePackage && !explicitPackageName {
+		destinationPackage = iface.PackageName
+	}
+
 	var code string
 	code, err = generator.CodeGenerator{
 		Model:       *iface,
 		StructName:  fakeName,
 		PackageName: destinationPackage,
+		SamePackage: samePackage,
 	}.GenerateFake()
 
 	if err != nil {

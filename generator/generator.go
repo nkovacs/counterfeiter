@@ -20,6 +20,7 @@ type CodeGenerator struct {
 	Model       model.InterfaceToFake
 	StructName  string
 	PackageName string
+	SamePackage bool
 
 	packageAlias map[string]string
 }
@@ -108,13 +109,22 @@ func (gen CodeGenerator) imports() ast.Decl {
 	allImports := map[string]bool{}
 	dotImports := map[string]bool{}
 	aliasImportNames := map[string]string{}
+	aliases := map[string]bool{}
 
 	modelImportName := strconv.Quote(gen.Model.ImportPath)
-	allImports[modelImportName] = true
+	if !gen.SamePackage {
+		allImports[modelImportName] = true
+		aliases[gen.Model.PackageName] = true
+		gen.packageAlias[modelImportName] = gen.Model.PackageName
+	} else {
+		allImports[modelImportName] = true
+		gen.packageAlias[modelImportName] = "."
+	}
 
 	syncImportName := strconv.Quote("sync")
 	allImports[syncImportName] = true
 	gen.packageAlias[syncImportName] = "sync"
+	aliases["sync"] = true
 
 	for _, m := range gen.Model.Methods {
 		for packageName, importSpec := range m.Imports {
@@ -123,6 +133,9 @@ func (gen CodeGenerator) imports() ast.Decl {
 				gen.packageAlias[importSpec.Path.Value] = "."
 			}
 
+			if allImports[importSpec.Path.Value] {
+				continue
+			}
 			allImports[importSpec.Path.Value] = true
 
 			var importAlias = ""
@@ -133,16 +146,13 @@ func (gen CodeGenerator) imports() ast.Decl {
 		}
 	}
 
-	aliases := map[string]bool{}
-	aliases[gen.Model.PackageName] = true
-	gen.packageAlias[modelImportName] = gen.Model.PackageName
 	for importName := range allImports {
 		if _, found := gen.packageAlias[importName]; found {
 			continue
 		}
 
 		alias := aliasImportNames[importName]
-		if alias == "" {
+		if alias == "" || aliases[alias] {
 			alias = gen.generateAlias(importName, aliases)
 			if alias == "" {
 				panic("could not generate an alias for " + importName)
@@ -153,6 +163,9 @@ func (gen CodeGenerator) imports() ast.Decl {
 	}
 
 	for importName, alias := range gen.packageAlias {
+		if importName == modelImportName && gen.SamePackage {
+			continue
+		}
 		var name *ast.Ident
 		if !strings.HasSuffix(importName[:len(importName)-1], alias) {
 			name = &ast.Ident{Name: alias}
@@ -961,15 +974,23 @@ func (gen CodeGenerator) receiverFieldList() *ast.FieldList {
 func (gen CodeGenerator) ensureInterfaceIsUsed() *ast.GenDecl {
 	packageName := gen.packageAlias[strconv.Quote(gen.Model.ImportPath)]
 	if gen.Model.RepresentedByInterface {
+
+		var t ast.Expr
+		if packageName == "." {
+			t = ast.NewIdent(gen.Model.Name)
+		} else {
+			t = &ast.SelectorExpr{
+				X:   ast.NewIdent(packageName),
+				Sel: ast.NewIdent(gen.Model.Name),
+			}
+		}
+
 		return &ast.GenDecl{
 			Tok: token.VAR,
 			Specs: []ast.Spec{
 				&ast.ValueSpec{
 					Names: []*ast.Ident{ast.NewIdent("_")},
-					Type: &ast.SelectorExpr{
-						X:   ast.NewIdent(packageName),
-						Sel: ast.NewIdent(gen.Model.Name),
-					},
+					Type:  t,
 					Values: []ast.Expr{
 						&ast.CallExpr{
 							Fun:  ast.NewIdent("new"),

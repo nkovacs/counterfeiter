@@ -17,6 +17,12 @@ var (
 		"The file or directory to which the generated fake will be written",
 	)
 
+	packageNameFlag = flag.String(
+		"pkg",
+		"",
+		"The package name of the generated file",
+	)
+
 	packageFlag = flag.Bool(
 		"p",
 		false,
