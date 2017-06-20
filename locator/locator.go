@@ -6,9 +6,9 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
-	"path"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/nkovacs/counterfeiter/model"
@@ -30,7 +30,7 @@ func GetInterfaceFromFilePath(interfaceName, filePath string) (*model.InterfaceT
 		return nil, err
 	}
 
-	return GetInterfaceFromImportPath(interfaceName, importPath, vendorPaths...)
+	return getInterfaceFromDirPath(interfaceName, importPath, dirPath, vendorPaths...)
 }
 
 func GetInterfaceFromImportPath(interfaceName, importPath string, vendorPaths ...string) (*model.InterfaceToFake, error) {
@@ -44,25 +44,39 @@ func GetInterfaceAndDirFromImportPath(interfaceName, importPath string, vendorPa
 		return nil, dirPath, err
 	}
 
-	packages, err := packagesForDirPath(dirPath)
+	// The vendor paths passed to this function are only used to find dirPath.
+	// The new dirPath might have different vendorPaths.
+	vendorPaths, err = vendorPathsForDirPath(dirPath)
 	if err != nil {
 		return nil, dirPath, err
+	}
+
+	iface, err := getInterfaceFromDirPath(interfaceName, importPath, dirPath, vendorPaths...)
+	return iface, dirPath, err
+}
+
+func getInterfaceFromDirPath(interfaceName, importPath, dirPath string, vendorPaths ...string) (*model.InterfaceToFake, error) {
+	packages, err := packagesForDirPath(dirPath)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, pkg := range packages {
 		iface, file, isFunction, err := findInterface(pkg, interfaceName)
 		if err != nil {
-			return nil, dirPath, err
+			return nil, err
 		}
 
 		if iface != nil {
 			typesFound := getTypeNames(pkg)
-			importSpecs := getImports(file)
+			importSpecs, err := getImports(file, vendorPaths...)
+			if err != nil {
+				return nil, err
+			}
 
 			pkgImport := addSourceImport(importSpecs, pkg.Name, importPath)
 
 			var methods []model.Method
-			var err error
 			switch iface.(type) {
 			case *ast.InterfaceType:
 				interfaceNode := iface.(*ast.InterfaceType)
@@ -75,7 +89,7 @@ func GetInterfaceAndDirFromImportPath(interfaceName, importPath string, vendorPa
 			}
 
 			if err != nil {
-				return nil, dirPath, err
+				return nil, err
 			}
 
 			return &model.InterfaceToFake{
@@ -84,11 +98,11 @@ func GetInterfaceAndDirFromImportPath(interfaceName, importPath string, vendorPa
 				ImportPath:             importPath,
 				PackageName:            pkg.Name,
 				RepresentedByInterface: !isFunction,
-			}, dirPath, nil
+			}, nil
 		}
 	}
 
-	return nil, dirPath, fmt.Errorf("Could not find interface '%s'", interfaceName)
+	return nil, fmt.Errorf("Could not find interface '%s'", interfaceName)
 }
 
 func getDir(path string) (string, error) {
@@ -207,13 +221,57 @@ func findInterface(pkg *ast.Package, interfaceName string) (ast.Node, *ast.File,
 	return iface, file, isFunction, err
 }
 
-func getImports(file *ast.File) map[string]*ast.ImportSpec {
-	result := map[string]*ast.ImportSpec{}
+func excludeTests(fi os.FileInfo) bool {
+	return !strings.HasSuffix(fi.Name(), "_test.go")
+}
+
+func getImports(file *ast.File, vendorPaths ...string) (result map[string]*ast.ImportSpec, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			if rerr, ok := r.(error); ok {
+				err = rerr
+			} else {
+				err = fmt.Errorf("panic: %v", r)
+			}
+		}
+	}()
+	result = map[string]*ast.ImportSpec{}
 	ast.Inspect(file, func(node ast.Node) bool {
 		if importSpec, ok := node.(*ast.ImportSpec); ok {
 			var alias string
 			if importSpec.Name == nil {
-				alias = path.Base(strings.Trim(importSpec.Path.Value, `"`))
+
+				importPath, err := strconv.Unquote(importSpec.Path.Value)
+				if err != nil {
+					panic(fmt.Errorf("could not unquote %v: %v", importSpec.Path.Value, err))
+				}
+				dirPath, err := dirPathForImportPath(importPath, vendorPaths)
+				if err != nil {
+					panic(fmt.Errorf("could not get directory for import path %v: %v", importPath, err))
+				}
+				importedPackages, err := parser.ParseDir(token.NewFileSet(), dirPath, excludeTests, parser.PackageClauseOnly)
+				if err != nil {
+					panic(fmt.Errorf("could not parse directory %v: %v", dirPath, err))
+				}
+				pkgNames := make([]string, 0, len(importedPackages))
+				for key := range importedPackages {
+					if key == "main" {
+						// Ignore any non-importable packages.
+						// net/http has a package main that is excluded
+						// using build constraints, but we can't check
+						// build constraints here.
+						// This works around that.
+						continue
+					}
+					pkgNames = append(pkgNames, key)
+				}
+				if len(pkgNames) == 0 {
+					panic(fmt.Errorf("No package found in %v", importPath))
+				}
+				if len(pkgNames) != 1 {
+					panic(fmt.Errorf("Multiple packages found in %v: %v", importPath, pkgNames))
+				}
+				alias = pkgNames[0]
 			} else {
 				alias = importSpec.Name.Name
 			}
@@ -221,7 +279,7 @@ func getImports(file *ast.File) map[string]*ast.ImportSpec {
 		}
 		return true
 	})
-	return result
+	return
 }
 
 func getTypeNames(pkg *ast.Package) map[string]bool {
