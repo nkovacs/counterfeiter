@@ -3,7 +3,7 @@ package fixtures
 import (
 	"net/http"
 
-	"github.com/maxbrunsfeld/counterfeiter/fixtures/another_package"
+	"github.com/nkovacs/counterfeiter/fixtures/another_package"
 )
 
 type EmbedsInterfaces interface {

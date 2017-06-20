@@ -179,7 +179,7 @@ var tmpDir string
 var pathToCounterfeiter string
 
 var _ = SynchronizedBeforeSuite(func() []byte {
-	pathToCounterfeiter, err := gexec.Build("github.com/maxbrunsfeld/counterfeiter")
+	pathToCounterfeiter, err := gexec.Build("github.com/nkovacs/counterfeiter")
 	Expect(err).ToNot(HaveOccurred())
 	return []byte(pathToCounterfeiter)
 }, func(computedPath []byte) {

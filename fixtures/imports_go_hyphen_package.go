@@ -1,10 +1,7 @@
 package fixtures
 
-import (
-  "github.com/maxbrunsfeld/counterfeiter/fixtures/go-hyphenpackage"
-)
+import "github.com/nkovacs/counterfeiter/fixtures/go-hyphenpackage"
 
 type ImportsGoHyphenPackage interface {
-  UseHyphenType(hyphenpackage.HyphenType)
+	UseHyphenType(hyphenpackage.HyphenType)
 }
-

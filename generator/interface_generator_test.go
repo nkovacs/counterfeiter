@@ -3,8 +3,8 @@ package generator_test
 import (
 	"path"
 
-	. "github.com/maxbrunsfeld/counterfeiter/generator"
-	"github.com/maxbrunsfeld/counterfeiter/locator"
+	. "github.com/nkovacs/counterfeiter/generator"
+	"github.com/nkovacs/counterfeiter/locator"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

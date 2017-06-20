@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/maxbrunsfeld/counterfeiter/astutil"
-	"github.com/maxbrunsfeld/counterfeiter/model"
+	"github.com/nkovacs/counterfeiter/astutil"
+	"github.com/nkovacs/counterfeiter/model"
 
 	"os"
 

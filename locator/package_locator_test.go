@@ -5,9 +5,9 @@ import (
 	"path"
 	"runtime"
 
-	"github.com/maxbrunsfeld/counterfeiter/model"
+	"github.com/nkovacs/counterfeiter/model"
 
-	. "github.com/maxbrunsfeld/counterfeiter/locator"
+	. "github.com/nkovacs/counterfeiter/locator"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

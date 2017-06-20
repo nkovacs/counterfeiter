@@ -1,9 +1,9 @@
 package generator_test
 
 import (
-	"github.com/maxbrunsfeld/counterfeiter/locator"
+	"github.com/nkovacs/counterfeiter/locator"
 
-	. "github.com/maxbrunsfeld/counterfeiter/generator"
+	. "github.com/nkovacs/counterfeiter/generator"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -161,7 +161,7 @@ package fixturesfakes
 import (
 	"sync"
 
-	"github.com/maxbrunsfeld/counterfeiter/fixtures"
+	"github.com/nkovacs/counterfeiter/fixtures"
 )
 
 type FakeSomething struct {
@@ -356,7 +356,7 @@ package fixturesfakes
 import (
 	"sync"
 
-	"github.com/maxbrunsfeld/counterfeiter/fixtures"
+	"github.com/nkovacs/counterfeiter/fixtures"
 )
 
 type FakeRequestFactory struct {
@@ -463,8 +463,8 @@ package fixturesfakes
 import (
 	"sync"
 
-	some_packagehyphen_ated "github.com/maxbrunsfeld/counterfeiter/fixtures/hyphenated_package_same_name/hyphen-ated/some_package"
-	"github.com/maxbrunsfeld/counterfeiter/fixtures/hyphenated_package_same_name/some_package"
+	some_packagehyphen_ated "github.com/nkovacs/counterfeiter/fixtures/hyphenated_package_same_name/hyphen-ated/some_package"
+	"github.com/nkovacs/counterfeiter/fixtures/hyphenated_package_same_name/some_package"
 )
 
 type FakeSomeInterface struct {
@@ -554,7 +554,7 @@ package fixturesfakes
 import (
 	"sync"
 
-	"github.com/maxbrunsfeld/counterfeiter/fixtures"
+	"github.com/nkovacs/counterfeiter/fixtures"
 )
 
 type FakeSomethingElse struct {
@@ -650,7 +650,7 @@ import (
 	ioAlias "io"
 	"sync"
 
-	"github.com/maxbrunsfeld/counterfeiter/fixtures/alias_import_name/test"
+	"github.com/nkovacs/counterfeiter/fixtures/alias_import_name/test"
 )
 
 type FakePotato struct {
@@ -720,8 +720,8 @@ package fixturesfakes
 import (
 	"sync"
 
-	"github.com/maxbrunsfeld/counterfeiter/fixtures"
-	hyphenpackage "github.com/maxbrunsfeld/counterfeiter/fixtures/go-hyphenpackage"
+	"github.com/nkovacs/counterfeiter/fixtures"
+	hyphenpackage "github.com/nkovacs/counterfeiter/fixtures/go-hyphenpackage"
 )
 
 type FakeImportsGoHyphenPackage struct {

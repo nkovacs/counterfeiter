@@ -1,7 +1,7 @@
 Counterfeiter
 =============
 
-[![Build Status](https://travis-ci.org/maxbrunsfeld/counterfeiter.svg?branch=master)](https://travis-ci.org/maxbrunsfeld/counterfeiter)
+[![Build Status](https://travis-ci.org/nkovacs/counterfeiter.svg?branch=master)](https://travis-ci.org/nkovacs/counterfeiter)
 
 When writing unit-tests for an object, it is often useful to have fake implementations
 of the object's collaborators. In go, such fake implementations cannot be generated

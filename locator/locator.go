@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/maxbrunsfeld/counterfeiter/model"
+	"github.com/nkovacs/counterfeiter/model"
 )
 
 func GetInterfaceFromFilePath(interfaceName, filePath string) (*model.InterfaceToFake, error) {

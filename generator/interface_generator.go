@@ -11,7 +11,7 @@ import (
 
 	"path/filepath"
 
-	"github.com/maxbrunsfeld/counterfeiter/model"
+	"github.com/nkovacs/counterfeiter/model"
 	"golang.org/x/tools/imports"
 )
 

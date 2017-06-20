@@ -4,9 +4,9 @@ import (
 	"go/ast"
 	"strconv"
 
-	"github.com/maxbrunsfeld/counterfeiter/model"
+	"github.com/nkovacs/counterfeiter/model"
 
-	. "github.com/maxbrunsfeld/counterfeiter/locator"
+	. "github.com/nkovacs/counterfeiter/locator"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -126,20 +126,20 @@ var _ = Describe("Locator", func() {
 			Expect(model.Methods).To(HaveLen(4))
 			Expect(model.Methods[0].Field.Names[0].Name).To(Equal("A"))
 			Expect(collectImports(model.Methods[0].Imports)).To(ConsistOf(
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages/a/v1",
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages/b/v1",
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages"))
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages/a/v1",
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages/b/v1",
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages"))
 			Expect(model.Methods[1].Field.Names[0].Name).To(Equal("FromA"))
 			Expect(collectImports(model.Methods[1].Imports)).To(ConsistOf(
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages/a/v1"))
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages/a/v1"))
 			Expect(model.Methods[2].Field.Names[0].Name).To(Equal("B"))
 			Expect(collectImports(model.Methods[2].Imports)).To(ConsistOf(
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages/a/v1",
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages/b/v1",
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages"))
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages/a/v1",
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages/b/v1",
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages"))
 			Expect(model.Methods[3].Field.Names[0].Name).To(Equal("FromB"))
 			Expect(collectImports(model.Methods[3].Imports)).To(ConsistOf(
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages/b/v1"))
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages/b/v1"))
 		})
 	})
 
@@ -161,12 +161,12 @@ var _ = Describe("Locator", func() {
 			Expect(model.Methods).To(HaveLen(2))
 			Expect(model.Methods[0].Field.Names[0].Name).To(Equal("A"))
 			Expect(collectImports(model.Methods[0].Imports)).To(ConsistOf(
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages/a/v1",
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages"))
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages/a/v1",
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages"))
 			Expect(model.Methods[1].Field.Names[0].Name).To(Equal("B"))
 			Expect(collectImports(model.Methods[1].Imports)).To(ConsistOf(
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages/b/v1",
-				"github.com/maxbrunsfeld/counterfeiter/fixtures/dup_packages"))
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages/b/v1",
+				"github.com/nkovacs/counterfeiter/fixtures/dup_packages"))
 		})
 	})
 

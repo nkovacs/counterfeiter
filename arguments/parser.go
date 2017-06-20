@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/maxbrunsfeld/counterfeiter/terminal"
+	"github.com/nkovacs/counterfeiter/terminal"
 )
 
 type ArgumentParser interface {

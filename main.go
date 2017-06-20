@@ -9,11 +9,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/maxbrunsfeld/counterfeiter/arguments"
-	"github.com/maxbrunsfeld/counterfeiter/generator"
-	"github.com/maxbrunsfeld/counterfeiter/locator"
-	"github.com/maxbrunsfeld/counterfeiter/model"
-	"github.com/maxbrunsfeld/counterfeiter/terminal"
+	"github.com/nkovacs/counterfeiter/arguments"
+	"github.com/nkovacs/counterfeiter/generator"
+	"github.com/nkovacs/counterfeiter/locator"
+	"github.com/nkovacs/counterfeiter/model"
+	"github.com/nkovacs/counterfeiter/terminal"
 )
 
 func main() {

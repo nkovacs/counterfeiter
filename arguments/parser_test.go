@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/maxbrunsfeld/counterfeiter/terminal/terminalfakes"
+	"github.com/nkovacs/counterfeiter/terminal/terminalfakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

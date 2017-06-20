@@ -3,8 +3,8 @@ package locator
 import (
 	"go/ast"
 
-	"github.com/maxbrunsfeld/counterfeiter/astutil"
-	"github.com/maxbrunsfeld/counterfeiter/model"
+	"github.com/nkovacs/counterfeiter/astutil"
+	"github.com/nkovacs/counterfeiter/model"
 )
 
 func methodsForInterface(
