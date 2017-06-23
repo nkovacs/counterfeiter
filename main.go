@@ -49,7 +49,11 @@ func generateFake(interfaceName, sourcePackageDir, importPath, outputPath, desti
 	var err error
 	var iface *model.InterfaceToFake
 	if sourcePackageDir == "" {
-		iface, sourcePackageDir, err = locator.GetInterfaceAndDirFromImportPath(interfaceName, importPath)
+		var vendorPaths []string
+		vendorPaths, err = locator.VendorPathsForDirPath(".")
+		if err == nil {
+			iface, sourcePackageDir, err = locator.GetInterfaceAndDirFromImportPath(interfaceName, importPath, vendorPaths...)
+		}
 	} else {
 		iface, err = locator.GetInterfaceFromFilePath(interfaceName, sourcePackageDir)
 	}
