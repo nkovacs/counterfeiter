@@ -12,7 +12,7 @@ type FakeWriteCloser struct {
 	writeArgsForCall []struct {
 		p []byte
 	}
-	writeReturns struct {
+	writeReturns *struct {
 		result1 int
 		result2 error
 	}
@@ -23,7 +23,7 @@ type FakeWriteCloser struct {
 	CloseStub        func() error
 	closeMutex       sync.RWMutex
 	closeArgsForCall []struct{}
-	closeReturns     struct {
+	closeReturns     *struct {
 		result1 error
 	}
 	closeReturnsOnCall map[int]struct {
@@ -52,6 +52,9 @@ func (fake *FakeWriteCloser) Write(p []byte) (n int, err error) {
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	if fake.writeReturns == nil {
+		panic("Unexpected method call: WriteCloser.Write()")
+	}
 	return fake.writeReturns.result1, fake.writeReturns.result2
 }
 
@@ -69,7 +72,7 @@ func (fake *FakeWriteCloser) WriteArgsForCall(i int) []byte {
 
 func (fake *FakeWriteCloser) WriteReturns(result1 int, result2 error) {
 	fake.WriteStub = nil
-	fake.writeReturns = struct {
+	fake.writeReturns = &struct {
 		result1 int
 		result2 error
 	}{result1, result2}
@@ -101,6 +104,9 @@ func (fake *FakeWriteCloser) Close() error {
 	if specificReturn {
 		return ret.result1
 	}
+	if fake.closeReturns == nil {
+		panic("Unexpected method call: WriteCloser.Close()")
+	}
 	return fake.closeReturns.result1
 }
 
@@ -112,7 +118,7 @@ func (fake *FakeWriteCloser) CloseCallCount() int {
 
 func (fake *FakeWriteCloser) CloseReturns(result1 error) {
 	fake.CloseStub = nil
-	fake.closeReturns = struct {
+	fake.closeReturns = &struct {
 		result1 error
 	}{result1}
 }

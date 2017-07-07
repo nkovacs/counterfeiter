@@ -251,7 +251,9 @@ func (gen CodeGenerator) fakeStructDeclaration() ast.Decl {
 				structFields,
 				&ast.Field{
 					Names: []*ast.Ident{ast.NewIdent(gen.returnStructFieldName(m.Field))},
-					Type:  returnStructTypeForMethod(methodType),
+					Type: &ast.StarExpr{
+						X: returnStructTypeForMethod(methodType),
+					},
 				},
 				&ast.Field{
 					Names: []*ast.Ident{ast.NewIdent(gen.returnMapFieldName(m.Field))},
@@ -378,11 +380,12 @@ func (gen CodeGenerator) stubbedMethodImplementation(method *ast.Field) *ast.Fun
 	if methodType.Results.NumFields() > 0 {
 		returnValues := []ast.Expr{}
 		specificReturnValues := []ast.Expr{}
+		retName := gen.returnStructFieldName(method)
 		eachMethodResult(methodType, func(name string, t ast.Expr) {
 			returnValues = append(returnValues, &ast.SelectorExpr{
 				X: &ast.SelectorExpr{
 					X:   receiverIdent(),
-					Sel: ast.NewIdent(gen.returnStructFieldName(method)),
+					Sel: ast.NewIdent(retName),
 				},
 				Sel: ast.NewIdent(name),
 			})
@@ -391,6 +394,13 @@ func (gen CodeGenerator) stubbedMethodImplementation(method *ast.Field) *ast.Fun
 				Sel: ast.NewIdent(name),
 			})
 		})
+
+		var panicMessage string
+		if gen.Model.RepresentedByInterface {
+			panicMessage = fmt.Sprintf("Unexpected method call: %v.%v()", gen.Model.Name, method.Names[0].Name)
+		} else {
+			panicMessage = fmt.Sprintf("Unexpected function call: %v()", method.Names[0].Name)
+		}
 
 		lastStatements = []ast.Stmt{
 			&ast.IfStmt{
@@ -403,6 +413,29 @@ func (gen CodeGenerator) stubbedMethodImplementation(method *ast.Field) *ast.Fun
 				Cond: ast.NewIdent("specificReturn"),
 				Body: &ast.BlockStmt{List: []ast.Stmt{
 					&ast.ReturnStmt{Results: specificReturnValues},
+				}},
+			},
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					X: &ast.SelectorExpr{
+						X:   receiverIdent(),
+						Sel: ast.NewIdent(retName),
+					},
+					Op: token.EQL,
+					Y:  ast.NewIdent("nil"),
+				},
+				Body: &ast.BlockStmt{List: []ast.Stmt{
+					&ast.ExprStmt{
+						X: &ast.CallExpr{
+							Fun: ast.NewIdent("panic"),
+							Args: []ast.Expr{
+								&ast.BasicLit{
+									Kind:  token.STRING,
+									Value: fmt.Sprintf("%q", panicMessage),
+								},
+							},
+						},
+					},
 				}},
 			},
 			&ast.ReturnStmt{Results: returnValues},
@@ -629,9 +662,12 @@ func (gen CodeGenerator) methodReturnsSetter(method *ast.Field) *ast.FuncDecl {
 					},
 				},
 				Rhs: []ast.Expr{
-					&ast.CompositeLit{
-						Type: returnStructTypeForMethod(methodType),
-						Elts: structFields,
+					&ast.UnaryExpr{
+						Op: token.AND,
+						X: &ast.CompositeLit{
+							Type: returnStructTypeForMethod(methodType),
+							Elts: structFields,
+						},
 					},
 				},
 			},

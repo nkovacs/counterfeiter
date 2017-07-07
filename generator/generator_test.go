@@ -171,7 +171,7 @@ type FakeSomething struct {
 		arg1 string
 		arg2 uint64
 	}
-	doThingsReturns struct {
+	doThingsReturns *struct {
 		result1 int
 		result2 error
 	}
@@ -211,6 +211,9 @@ func (fake *FakeSomething) DoThings(arg1 string, arg2 uint64) (int, error) {
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	if fake.doThingsReturns == nil {
+		panic("Unexpected method call: Something.DoThings()")
+	}
 	return fake.doThingsReturns.result1, fake.doThingsReturns.result2
 }
 
@@ -228,7 +231,7 @@ func (fake *FakeSomething) DoThingsArgsForCall(i int) (string, uint64) {
 
 func (fake *FakeSomething) DoThingsReturns(result1 int, result2 error) {
 	fake.DoThingsStub = nil
-	fake.doThingsReturns = struct {
+	fake.doThingsReturns = &struct {
 		result1 int
 		result2 error
 	}{result1, result2}
@@ -366,7 +369,7 @@ type FakeRequestFactory struct {
 		arg1 fixtures.Params
 		arg2 map[string]interface{}
 	}
-	returns struct {
+	returns *struct {
 		result1 fixtures.Request
 		result2 error
 	}
@@ -393,6 +396,9 @@ func (fake *FakeRequestFactory) Spy(arg1 fixtures.Params, arg2 map[string]interf
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	if fake.returns == nil {
+		panic("Unexpected function call: RequestFactory()")
+	}
 	return fake.returns.result1, fake.returns.result2
 }
 
@@ -410,7 +416,7 @@ func (fake *FakeRequestFactory) ArgsForCall(i int) (fixtures.Params, map[string]
 
 func (fake *FakeRequestFactory) Returns(result1 fixtures.Request, result2 error) {
 	fake.Stub = nil
-	fake.returns = struct {
+	fake.returns = &struct {
 		result1 fixtures.Request
 		result2 error
 	}{result1, result2}
@@ -471,7 +477,7 @@ type FakeSomeInterface struct {
 	CreateThingStub        func() some_packagehyphen_ated.Thing
 	createThingMutex       sync.RWMutex
 	createThingArgsForCall []struct{}
-	createThingReturns struct {
+	createThingReturns *struct {
 		result1 some_packagehyphen_ated.Thing
 	}
 	createThingReturnsOnCall map[int]struct {
@@ -493,6 +499,9 @@ func (fake *FakeSomeInterface) CreateThing() some_packagehyphen_ated.Thing {
 	if specificReturn {
 		return ret.result1
 	}
+	if fake.createThingReturns == nil {
+		panic("Unexpected method call: SomeInterface.CreateThing()")
+	}
 	return fake.createThingReturns.result1
 }
 
@@ -504,7 +513,7 @@ func (fake *FakeSomeInterface) CreateThingCallCount() int {
 
 func (fake *FakeSomeInterface) CreateThingReturns(result1 some_packagehyphen_ated.Thing) {
 	fake.CreateThingStub = nil
-	fake.createThingReturns = struct {
+	fake.createThingReturns = &struct {
 		result1 some_packagehyphen_ated.Thing
 	}{result1}
 }
@@ -561,7 +570,7 @@ type FakeSomethingElse struct {
 	ReturnStuffStub        func() (a, b int)
 	returnStuffMutex       sync.RWMutex
 	returnStuffArgsForCall []struct{}
-	returnStuffReturns struct {
+	returnStuffReturns *struct {
 		result1 int
 		result2 int
 	}
@@ -585,6 +594,9 @@ func (fake *FakeSomethingElse) ReturnStuff() (a, b int) {
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
+	if fake.returnStuffReturns == nil {
+		panic("Unexpected method call: SomethingElse.ReturnStuff()")
+	}
 	return fake.returnStuffReturns.result1, fake.returnStuffReturns.result2
 }
 
@@ -596,7 +608,7 @@ func (fake *FakeSomethingElse) ReturnStuffCallCount() int {
 
 func (fake *FakeSomethingElse) ReturnStuffReturns(result1 int, result2 int) {
 	fake.ReturnStuffStub = nil
-	fake.returnStuffReturns = struct {
+	fake.returnStuffReturns = &struct {
 		result1 int
 		result2 int
 	}{result1, result2}
