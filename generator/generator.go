@@ -32,7 +32,7 @@ func (gen CodeGenerator) GenerateFake() (string, error) {
 		return "", err
 	}
 
-	code, err := imports.Process("", buf.Bytes(), nil)
+	code, err := imports.Process(tempProcessFilename(), buf.Bytes(), nil)
 	return commentLine() + prettifyCode(string(code)), err
 }
 
@@ -174,7 +174,7 @@ func (gen CodeGenerator) imports() ast.Decl {
 			Name: name,
 			Path: &ast.BasicLit{
 				Kind:  token.STRING,
-				Value: importName,
+				Value: strings.Replace(importName, "\\", "/", -1),
 			},
 		})
 	}
