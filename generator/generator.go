@@ -49,7 +49,7 @@ func (gen CodeGenerator) isExportedInterface() bool {
   MyMethod()
   MyMethodCallCount()
   MyMethodArgsForCall()
-  Invocations -> map[string][][]interfac{}
+  Invocations -> map[string][][]interface{}
   recordInvocation(string, []interface{})
   var _ fixtures.SomeInterface = new(MySpecialFake)
 */
