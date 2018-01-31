@@ -1,7 +1,7 @@
 package generator_test
 
 import (
-	"path"
+	"path/filepath"
 
 	. "github.com/nkovacs/counterfeiter/generator"
 	"github.com/nkovacs/counterfeiter/locator"
@@ -17,11 +17,12 @@ var _ = Describe("Interface Generator", func() {
 	)
 
 	BeforeEach(func() {
-		model, _ := locator.GetFunctionsFromDirectory("ostest", path.Join("../fixtures/", "packagegen", "apackage"))
+		fixturePath := filepath.Join("..", "fixtures", "packagegen", "apackage")
+		model, _ := locator.GetFunctionsFromDirectory("ostest", fixturePath)
 
 		subject = InterfaceGenerator{
 			Model:                  model,
-			Package:                path.Join("../fixtures/", "packagegen", "apackage"),
+			Package:                fixturePath,
 			DestinationPackageName: "osshim",
 			DestinationInterface:   "Os",
 		}
