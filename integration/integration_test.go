@@ -128,13 +128,15 @@ func copyIn(fixture string, destination string) {
 
 		base := filepath.Base(path)
 
-		src, err := os.Open(path)
+		fileHandle, err := os.Open(path)
 		Expect(err).ToNot(HaveOccurred())
+		defer fileHandle.Close()
 
 		dst, err := os.Create(filepath.Join(destination, base))
 		Expect(err).ToNot(HaveOccurred())
+		defer dst.Close()
 
-		_, err = io.Copy(dst, src)
+		_, err = io.Copy(dst, fileHandle)
 		Expect(err).ToNot(HaveOccurred())
 		return nil
 	})
