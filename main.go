@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"go/format"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -79,7 +80,7 @@ func generateFake(interfaceName, sourcePackageDir, importPath, outputPath, desti
 	}
 
 	printCode(code, outputPath, printToStdOut)
-	reportDone(outputPath, fakeName)
+	reportDone(printToStdOut, outputPath, fakeName)
 }
 
 func generateInterfaceAndShim(sourceDir string, outputPath string, outPackage string, printToStdOut bool) {
@@ -106,7 +107,7 @@ func generateInterfaceAndShim(sourceDir string, outputPath string, outPackage st
 
 	printCode(code, interfacePath, printToStdOut)
 
-	reportDone(interfacePath, interfaceName)
+	reportDone(printToStdOut, interfacePath, interfaceName)
 
 	sourcePackage := path.Base(sourceDir)
 
@@ -129,7 +130,7 @@ func generateInterfaceAndShim(sourceDir string, outputPath string, outPackage st
 	realPath := path.Join(interfaceDir, outPackage+".go")
 
 	printCode(code, realPath, printToStdOut)
-	reportDone(realPath, interfaceName+"Shim")
+	reportDone(printToStdOut, realPath, interfaceName+"Shim")
 }
 
 func printCode(code, outputPath string, printToStdOut bool) {
@@ -156,13 +157,20 @@ func printCode(code, outputPath string, printToStdOut bool) {
 	}
 }
 
-func reportDone(outputPath, fakeName string) {
+func reportDone(printToStdOut bool, outputPath, fakeName string) {
 	rel, err := filepath.Rel(cwd(), outputPath)
 	if err != nil {
 		fail("%v", err)
 	}
 
-	fmt.Printf("Wrote `%s` to `%s`\n", fakeName, rel)
+	var writer io.Writer
+	if printToStdOut {
+		writer = os.Stderr
+	} else {
+		writer = os.Stdout
+	}
+
+	fmt.Fprint(writer, fmt.Sprintf("Wrote `%s` to `%s`\n", fakeName, rel))
 }
 
 func cwd() string {
