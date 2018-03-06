@@ -3,6 +3,7 @@ package locator
 import (
 	"fmt"
 	"go/ast"
+	"go/build"
 	"go/parser"
 	"go/token"
 	"os"
@@ -176,7 +177,7 @@ func VendorPathsForDirPath(dirPath string) ([]string, error) {
 func goSourcePaths() []string {
 	result := []string{}
 	separator := string(os.PathListSeparator)
-	for _, path := range strings.Split(os.Getenv("GOPATH"), separator) {
+	for _, path := range strings.Split(build.Default.GOPATH, separator) {
 		result = append(result, filepath.Join(path, "src"))
 	}
 	result = append(result, filepath.Join(runtime.GOROOT(), "src"))
