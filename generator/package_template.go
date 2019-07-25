@@ -21,7 +21,7 @@ import (
 	{{- end}}
 )
 
-//{{.Generate}} counterfeiter . {{.Name}}
+//{{Generate}} counterfeiter . {{.Name}}
 
 // {{.Name}} is a generated interface representing the exported functions
 // in the {{.TargetPackage}} package.
